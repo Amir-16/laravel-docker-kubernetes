@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: laravel_app
     restart: unless-stopped
     volumes:
@@ -21,7 +23,7 @@ services:
       - "8000:80"
     volumes:
       - .:/var/www
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
     networks:
@@ -34,27 +36,39 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
     networks:
       - laravel_network
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq_server
+    container_name: rabbitmq
+    restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"     # RabbitMQ broker
+      - "15672:15672"   # RabbitMQ management UI
     networks:
       - laravel_network
 
   grafana:
     image: grafana/grafana
     container_name: grafana_dashboard
+    restart: unless-stopped
     ports:
       - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - laravel_network
+
+volumes:
+  mysql_data:
+  grafana_data:
 
 networks:
   laravel_network:

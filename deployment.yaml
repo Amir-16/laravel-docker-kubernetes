@@ -26,6 +26,11 @@ spec:
               value: user
             - name: DB_PASSWORD
               value: password
+            - name: RABBITMQ_HOST
+              value: rabbitmq  # Add this to connect to RabbitMQ service
+            - name: RABBITMQ_PORT
+              value: "5672"  # Set the correct RabbitMQ port
+
 ---
 apiVersion: v1
 kind: Service
